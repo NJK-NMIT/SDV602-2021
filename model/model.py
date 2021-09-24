@@ -18,7 +18,9 @@ class Model():
             self.data_manager.close_file(csv_file_obj)
             self.field_names = [ key for key in self.record_set[0]]
         
-
+    def merge(self, source, target):
+        self.data_manager.append(target, source)
+        
     def get_column(self,column_name):
         if self.record_set and column_name in self.field_names:
             return [record[column_name] for record in self.record_set]

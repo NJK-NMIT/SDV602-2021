@@ -15,6 +15,31 @@ class DataManager():
         self.current_files:Dict = {}
         self.current_file = None
 
+    def append(self, target, source, has_header=True):
+        """
+        Appends source to the end of target, if source has a header (default) 
+        then it skips the header row in source
+
+        Presumption! that the files have the same columns
+
+        Args
+            target , path to file to append to
+            source,  path to file to append
+            has_header , True if the source has a header
+        """
+        target_file_obj = open(target,'a')
+        source_file_obj = open(source,'r')
+        lines = source_file_obj.readlines()
+        if has_header:
+            lines = lines[1:]
+
+        target_file_obj.writelines(lines)
+        
+            
+
+
+
+
     def get_file(self,path_to_file):
         try:
             self.current_file = open(path_to_file)

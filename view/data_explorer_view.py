@@ -6,6 +6,7 @@ import controller.DES.exit_button as exit_button
 import controller.DES.figure_list_select as figure_list_select
 import controller.DES.new_des as new_des
 import controller.DES.open_csv as open_csv
+import controller.Upload.uploader as uploader
 import PySimpleGUI as sg
 import inspect
 import matplotlib
@@ -18,6 +19,7 @@ import matplotlib.pyplot as plt
 class DES_View(object):
     des_list = []
     current_des = 0
+    
     def __init__(self):
         
         self.window = None
@@ -41,6 +43,14 @@ class DES_View(object):
     def update_component_text(self,component_name, text):
         if component_name in self.components:
             self.components[component_name].update(text)
+
+    def update_data_from_csv(self,values,file_name):
+        from model.model import Model
+        model = Model(data_source = file_name)
+        fin_liabilities = model.get_column('    D3. Total interest payments as a percentage of household disposable income')
+        stats_months = model.get_column('Year')
+        self.update_current_data(values,file_name,data=fin_liabilities,x_values=stats_months,y_values=fin_liabilities,
+                                    x_label='Year Month',y_label='Interest %',title_label='Interest payments % of disposable income')
 
     def update_current_data(self,values,file_name=None, **kwargs):
         if self.have_selected_graph(values) : 
@@ -118,6 +128,9 @@ class DES_View(object):
         self.controls += [figure_list_select.accept]
 
         self.components['text_spacer'] = sg.Text(' ' * 12)
+
+        self.components['uploader'] = sg.Button(button_text="Open Uploader",size=(10, 2))
+        self.controls += [uploader.accept]
         self.components['new_des'] = sg.Button(button_text="New DES",size=(10, 2))
         self.controls += [new_des.accept]
         self.components['data_file_name'] = sg.Text('No data')
@@ -129,7 +142,7 @@ class DES_View(object):
 
         col_listbox = [
                         [self.components['figures_list']],
-                        [self.components['text_spacer'],self.components['new_des'],self.components['select_file'],self.components['exit_button'] ]
+                        [self.components['text_spacer'],self.components['uploader'],self.components['new_des'],self.components['select_file'],self.components['exit_button'] ]
                     ]
         self.components['header'] =   sg.Text('Matplotlib Plot Test', font=('current 18'))
         self.components['list_box_padding'] =  sg.Col(col_listbox, pad=(5, (3, 330))) 
