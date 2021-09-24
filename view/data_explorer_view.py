@@ -162,7 +162,7 @@ class DES_View(object):
             
 
     def accept_input(self):
-
+ 
             if self.window != None :
                 keep_going = True
                 
