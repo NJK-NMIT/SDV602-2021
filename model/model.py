@@ -1,5 +1,5 @@
 """
-This is the Model class the super class of all Models 
+This should be the Model class the super class of all Models 
 """
 from tkinter.constants import S
 from model.data.data_scan import DataManager
