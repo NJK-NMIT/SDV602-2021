@@ -2,6 +2,10 @@ from model.network.jsn_drop_service import jsnDrop
 from time import gmtime  #  gmt_time returns UTC time struct frim 
 
 class UserManager(object):
+    current_user = None
+    current_status = None
+    current_screen = None
+    chat_list = None
 
     def now_time_stamp(self):
         time_now = gmtime()
@@ -11,8 +15,6 @@ class UserManager(object):
 
     def __init__(self) -> None:
         super().__init__()
-        self.currentUser = ""
-        self.current_status = ""
 
         self.jsnDrop = jsnDrop("6c420424-62ad-4218-8b1f-d6cf2115facd","https://newsimland.com/~todd/JSON")
 
@@ -33,8 +35,8 @@ class UserManager(object):
         if( "DATA_ERROR" in self.jsnDrop.jsnStatus): # we get a DATA ERROR on an empty list - this is a design error in jsnDrop
             # Is this where our password should be SHA'ed !?
             result = self.jsnDrop.store("tblUser",[{'PersonID':user_id,'Password':password,'Status':'Registered'}])
-            self.currentUser = user_id
-            self.current_status = 'Registered'
+            UserManager.currentUser = user_id
+            UserManager.current_status = 'Logged Out'
             result = "Registration Success"
         else:
             result = "User Already Exists"
@@ -46,9 +48,47 @@ class UserManager(object):
         api_result = self.jsnDrop.select("tblUser",f"PersonID = '{user_id}' AND Password = '{password}'") # Danger SQL injection attack via user_id?? Is JsnDrop SQL injection attack safe??
         if( "DATA_ERROR" in self.jsnDrop.jsnStatus): # then the (user_id,password) pair do not exist - so bad login
             result = "Login Fail"
+            UserManager.current_status ="Logged Out"
         else:
+            UserManager.current_status = "Logged In"
             result = "Login Success"
         return result
+
+    def chat(self,message):
+        result = None
+        if UserManager.current_status != "Logged In":
+            result = "You must be logged in to chat"
+        else: 
+            user_id = UserManager.current_user
+            des_screen = UserManager.current_screen
+            api_result = self.jsnDrop.store("tblChat",[{'PersonID':user_id,
+                                                        'DESNumber':des_screen,
+                                                        'Chat':message,
+                                                        'Time': self.now_time_stamp()}])
+            if "ERROR" in api_result :
+                result = self.jsnDrop.jsnStatus
+            else:
+                result = "Chat sent"
+
+        return result
+
+    def get_chat(self):
+         result = None
+         
+         if UserManager.current_status == "Logged In":
+            des_screen = UserManager.current_screen  
+            api_result = self.jsnDrop.select("tblChat",f"DESNumber = '{des_screen}'")
+            if not ('DATA_ERROR' in api_result) :
+                UserManager.chat_list = self.jsnDrop.jsnResult
+                result = UserManager.chat_list
+
+         return result
+         
+                
+
+        
+
+
 
 
     def test_api(self):

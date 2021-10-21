@@ -24,8 +24,15 @@ def accept( event, values,state):
         login_status = a_user_manager.login("Todd","12345")
         print(f"LOGIN STATUS {login_status}")
 
+        chat_status = a_user_manager.chat("Hello 1")
+        print(f"CHAT STATUS {chat_status}")
+
         login_status = a_user_manager.login("Todd","12")
         print(f"LOGIN STATUS {login_status}")
+
+        chat_status = a_user_manager.chat("Hello 2")
+        print(f"CHAT STATUS {chat_status}")
+
 
 
 
