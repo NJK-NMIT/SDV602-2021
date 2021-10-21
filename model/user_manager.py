@@ -29,15 +29,27 @@ class UserManager(object):
         # self.test_api()
 
     def register(self, user_id, password):
-        result = self.jsnDrop.select("tblUser",f"PersonID = '{user_id}'") # Danger SQL injection attack via user_id?? Is JsnDrop SQL injection attack safe??
-        if( "DATA_ERROR" in self.jsnDrop.jsnStatus):
+        api_result = self.jsnDrop.select("tblUser",f"PersonID = '{user_id}'") # Danger SQL injection attack via user_id?? Is JsnDrop SQL injection attack safe??
+        if( "DATA_ERROR" in self.jsnDrop.jsnStatus): # we get a DATA ERROR on an empty list - this is a design error in jsnDrop
+            # Is this where our password should be SHA'ed !?
             result = self.jsnDrop.store("tblUser",[{'PersonID':user_id,'Password':password,'Status':'Registered'}])
             self.currentUser = user_id
             self.current_status = 'Registered'
+            result = "Registration Success"
         else:
-            result = "User Exists"
+            result = "User Already Exists"
 
         return result
+
+    def login(self, user_id, password):
+        result = None
+        api_result = self.jsnDrop.select("tblUser",f"PersonID = '{user_id}' AND Password = '{password}'") # Danger SQL injection attack via user_id?? Is JsnDrop SQL injection attack safe??
+        if( "DATA_ERROR" in self.jsnDrop.jsnStatus): # then the (user_id,password) pair do not exist - so bad login
+            result = "Login Fail"
+        else:
+            result = "Login Success"
+        return result
+
 
     def test_api(self):
         result = self.jsnDrop.create("tblTestUser",{"PersonID PK":"Todd","Score":21})
