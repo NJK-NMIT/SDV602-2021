@@ -3,6 +3,7 @@ from time import gmtime  #  gmt_time returns UTC time struct
 
 class UserManager(object):
     current_user = None
+    current_pass = None
     current_status = None
     current_screen = None
     chat_list = None
@@ -55,6 +56,7 @@ class UserManager(object):
         else:
             UserManager.current_status = "Logged In"
             UserManager.current_user = user_id
+            UserManager.current_pass = password
             api_result = self.jsnDrop.store("tblUser",[{"PersonID":user_id,"Password":password,"Status":"Logged In"}])
             result = "Login Success"
         return result
@@ -106,6 +108,7 @@ class UserManager(object):
         result = "Must be 'Logged In' to 'LogOut' "
         if UserManager.current_status == "Logged In":
             api_result = self.jsnDrop.store("tblUser",[{"PersonID": UserManager.current_user,
+                                                        "Password": UserManager.current_pass,
                                                         "Status":"Logged Out"}])
             if not("ERROR" in api_result):
                 UserManager.current_status = "Logged Out"

@@ -13,6 +13,7 @@ def accept( event, values,state):
         print("Got Register - just testing")
 
         # Work with a UserManager object
+        
         from model.user_manager import UserManager
         a_user_manager = UserManager()
 
