@@ -1,15 +1,16 @@
 from model.network.jsn_drop_service import jsnDrop
-from time import gmtime  #  gmt_time returns UTC time struct frim 
+from time import gmtime  #  gmt_time returns UTC time struct  
 
 class UserManager(object):
     current_user = None
     current_status = None
     current_screen = None
     chat_list = None
+    this_user_manager = None
 
     def now_time_stamp(self):
         time_now = gmtime()
-        timestamp_str = f"{time_now.tm_year}:{time_now.tm_mon}:{time_now.tm_mday}:{time_now.tm_hour}:{time_now.tm_min}:{time_now.tm_sec}"
+        timestamp_str = f"{time_now.tm_year}-{time_now.tm_mon}-{time_now.tm_mday} {time_now.tm_hour}:{time_now.tm_min}:{time_now.tm_sec}"
         return timestamp_str
  
 
@@ -18,15 +19,16 @@ class UserManager(object):
 
         self.jsnDrop = jsnDrop("6c420424-62ad-4218-8b1f-d6cf2115facd","https://newsimland.com/~todd/JSON")
 
-        # SCHEMA Make sure the tables are  CREATED - jsnDrop does not wipe an existing table 
-        result = self.jsnDrop.create("tblUser",{"PersonID PK":"A_LOOONG_NAME",
-                                                "Password":"A_LOOONG_PASSWORD",
+        # SCHEMA Make sure the tables are  CREATED - jsnDrop does not wipe an existing table if it is recreated
+        result = self.jsnDrop.create("tblUser",{"PersonID PK":"A_LOOONG_NAME"+('X'*50),
+                                                "Password":"A_LOOONG_PASSWORD"+('X'*50),
                                                 "Status":"STATUS_STRING"})
 
-        result = self.jsnDrop.create("tblChat",{"PersonID PK":"A_LOOONG_NAME",
-                                                "DESNumber":"A_LOOONG_DES_ID",
-                                                "Chat":"A_LOONG____CHAT_ENTRY",
-                                                "Time": self.now_time_stamp()})
+        result = self.jsnDrop.create("tblChat",{"PersonID PK":"A_LOOONG_NAME"+('X'*50),
+                                                "DESNumber":"A_LOOONG_DES_ID"+('X'*50),
+                                                "Chat":"A_LOONG____CHAT_ENTRY"+('X'*255),
+                                                "Time": self.now_time_stamp()+('X'*50)})
+        UserManager.this_user_manager = self
 
         # self.test_api()
 
@@ -49,8 +51,11 @@ class UserManager(object):
         if( "DATA_ERROR" in self.jsnDrop.jsnStatus): # then the (user_id,password) pair do not exist - so bad login
             result = "Login Fail"
             UserManager.current_status = "Logged Out"
+            UserManager.current_user = None
         else:
             UserManager.current_status = "Logged In"
+            UserManager.current_user = user_id
+            api_result = self.jsnDrop.store("tblUser",[{"PersonID":user_id,"Password":password,"Status":"Logged In"}])
             result = "Login Success"
         return result
 
@@ -97,8 +102,22 @@ class UserManager(object):
 
          return result
          
+    def logout(self):
+        result = "Must be 'Logged In' to 'LogOut' "
+        if UserManager.current_status == "Logged In":
+            api_result = self.jsnDrop.store("tblUser",[{"PersonID": UserManager.current_user,
+                                                        "Status":"Logged Out"}])
+            if not("ERROR" in api_result):
+                UserManager.current_status = "Logged Out"
+                result = "Logged Out"
+            else:
+                result = self.jsnDrop.jsnStatus
+
+        return result
+
 
     def test_api(self):
+        # Should this be in jsn_drop_service ?
         result = self.jsnDrop.create("tblTestUser",{"PersonID PK":"Todd","Score":21})
         print(f"Create Result from UserManager {result}")
 
@@ -119,5 +138,52 @@ class UserManager(object):
 
 
 
-        
+def testUserManager():
+    # Just a Test
+
+    # Start with no user table and no chat table
+    a_jsnDrop = jsnDrop("6c420424-62ad-4218-8b1f-d6cf2115facd","https://newsimland.com/~todd/JSON")
+    a_jsnDrop.drop('tblUser')
+    a_jsnDrop.drop('tblChat')
+    # Now start a User manager with a clean slate
+
+    # Get a User Maanager
+    a_user_manager = UserManager()
+
+    #register
+    register_status = a_user_manager.register("Todd", "12345") 
+    print(f"REGISTER STATUS: {register_status}")
+
+    #login 
+    login_status = a_user_manager.login("Todd","12345")
+    print(f"LOGIN STATUS: {login_status}")
+
+    # when logged in set current screen
+    set_screen_status = a_user_manager.set_current_DES("DES1")  
+    print(f"SET CURRENT SCREEN: {set_screen_status}") 
+
+    # when logged in send a chat   
+    chat_status = a_user_manager.chat("Hello 1")
+    print(f"SEND CHAT STATUS: {chat_status}")
+
+    # when logged in get chat
+    chat_status = a_user_manager.get_chat()
+    print(f"GET CHAT STATUS: {chat_status}")
+
+    # log out
+    logout_status = a_user_manager.logout()
+    print(f"LOGOUT STATUS: {logout_status}")
+
+    # attempt bad login (logs out)
+    login_status = a_user_manager.login("Todd","12")
+    print(f"LOGIN STATUS: {login_status}")
+
+    # attempt send chat when not logged in, after bad login 
+    chat_status = a_user_manager.chat("Hello 2")
+    print(f"SEND CHAT STATUS after bad login: {chat_status}")
+
+    # attempt get chat when not logged in, after bad login
+    chat_status = a_user_manager.get_chat()
+    print(f"GET CHAT STATUS after bad login: {chat_status}")
+    
 

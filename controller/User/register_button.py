@@ -14,34 +14,20 @@ def accept( event, values,state):
 
         # Work with a UserManager object
         from model.user_manager import UserManager
-        # get user name and password from the "values" or "state"
         a_user_manager = UserManager()
 
+        # get user name and password from the "values" or "state"
+        user_name = values['User']
+        password = values['Password']
+        print(f"Got User = {user_name} , Password = {password} - just testing")
+
+        
+        register_result = a_user_manager.register(user_name,password)
+        print(f"REGISTER RESULT {register_result}")
+        
         # Just a Test
-        register_status = a_user_manager.register("Todd", "12345") 
-        print(f"REGISTER STATUS {register_status}")
-
-        login_status = a_user_manager.login("Todd","12345")
-        print(f"LOGIN STATUS {login_status}")
-
-        set_screen_status = a_user_manager.set_current_DES("DES1")  
-        print(f"SET CURRENT SCREEN {set_screen_status}")      
-        chat_status = a_user_manager.chat("Hello 1")
-        print(f"CHAT STATUS {chat_status}")
-
-
-        chat_status = a_user_manager.get_chat()
-        print(f"GET CHAT STATUS {chat_status}")
-
-        login_status = a_user_manager.login("Todd","12")
-        print(f"LOGIN STATUS {login_status}")
-
-        chat_status = a_user_manager.chat("Hello 2")
-        print(f"CHAT STATUS {chat_status}")
-
-        chat_status = a_user_manager.get_chat()
-        print(f"GET CHAT STATUS {chat_status}")
-
+        #from model.user_manager import testUserManager 
+        #testUserManager()
 
 
 

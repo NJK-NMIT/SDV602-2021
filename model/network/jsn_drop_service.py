@@ -80,6 +80,11 @@ class jsnDrop(object):
         command["WHERE"] = where
         return self.jsnDropApi(command)
 
+    def drop(self,table_name):
+        command = self.jsnDropDrop
+        command["DROP"] = table_name
+        return self.jsnDropApi(command)
+
     
 
 #class jsnTable(object):
