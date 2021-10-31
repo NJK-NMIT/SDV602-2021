@@ -11,7 +11,7 @@ def accept( event, values,state):
     if event == "Register":   
         # Just testing
         print("Got Register - just testing")
-
+        
         # Work with a UserManager object
         
         from model.user_manager import UserManager

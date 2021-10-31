@@ -6,7 +6,8 @@ class UserManager(object):
     current_pass = None
     current_status = None
     current_screen = None
-    chat_list = None
+    chat_list = []
+    chat_thread = None
     this_user_manager = None
 
     def now_time_stamp(self):
@@ -18,7 +19,7 @@ class UserManager(object):
     def __init__(self) -> None:
         super().__init__()
 
-        self.jsnDrop = jsnDrop("YOUR-TOKEN-GOES-HERE","https://newsimland.com/~todd/JSON")
+        self.jsnDrop = jsnDrop("6C420424-62AD-4218-8B1F-D6CF2115FACD","https://newsimland.com/~todd/JSON")
 
         # SCHEMA Make sure the tables are  CREATED - jsnDrop does not wipe an existing table if it is recreated
         result = self.jsnDrop.create("tblUser",{"PersonID PK":"A_LOOONG_NAME"+('X'*50),
@@ -145,7 +146,7 @@ def testUserManager():
     # Just a Test
 
     # Start with no user table and no chat table
-    a_jsnDrop = jsnDrop("YOUR-TOKEN-GOES-HERE","https://newsimland.com/~todd/JSON")
+    a_jsnDrop = jsnDrop("6C420424-62AD-4218-8B1F-D6CF2115FACD","https://newsimland.com/~todd/JSON")
     a_jsnDrop.drop('tblUser')
     a_jsnDrop.drop('tblChat')
     # Now start a User manager with a clean slate

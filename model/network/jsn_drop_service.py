@@ -1,7 +1,7 @@
 import requests 
 import json 
 
-# YOUR-TOKEN-GOES-HERE
+#6c420424-62ad-4218-8b1f-d6cf2115facd
 #https://docs.python.org/3/library/json.html
 
 class jsnDrop(object):
@@ -47,34 +47,34 @@ class jsnDrop(object):
 
     
     def create(self,table_name, example):
-        # https://newsimland.com/~todd/JSON/?tok={"tok":"YOUR-TOKEN-GOES-HERE","cmd":{"CREATE":"tblTest","EXAMPLE":{"PersonID  PK":"Todd","Score":21}}}
+        # https://newsimland.com/~todd/JSON/?tok={"tok":"6C420424-62AD-4218-8B1F-D6CF2115FACD","cmd":{"CREATE":"tblTest","EXAMPLE":{"PersonID  PK":"Todd","Score":21}}}
         command = self.jsnDropCreate
         command["CREATE"] = table_name
         command["EXAMPLE"] = example
         return self.jsnDropApi(command)
         
     def store(self, table_name, value_list):
-        # https://newsimland.com/~todd/JSON/?tok={"tok":"YOUR-TOKEN-GOES-HERE","cmd":{"STORE":"tblTest","VALUE":[{"PersonID":"Todd","Score":21},{"PersonID":"Jane","Score":2000}]}}
+        # https://newsimland.com/~todd/JSON/?tok={"tok":"6C420424-62AD-4218-8B1F-D6CF2115FACD","cmd":{"STORE":"tblTest","VALUE":[{"PersonID":"Todd","Score":21},{"PersonID":"Jane","Score":2000}]}}
         command = self.jsnDropStore
         command["STORE"] = table_name
         command["VALUE"] = value_list
         return self.jsnDropApi(command)
 
     def all(self, table_name):
-        # https://newsimland.com/~todd/JSON/?tok={"tok":"YOUR-TOKEN-GOES-HERE","cmd":{"ALL":"tblTest"}} 
+        # https://newsimland.com/~todd/JSON/?tok={"tok":"6C420424-62AD-4218-8B1F-D6CF2115FACD","cmd":{"ALL":"tblTest"}} 
         command = self.jsnDropAll
         command["ALL"] = table_name
         return self.jsnDropApi(command)
 
     def select(self, table_name, where):
-        # https://newsimland.com/~todd/JSON/?tok={"tok":"YOUR-TOKEN-GOES-HERE","cmd":{"SELECT":"tblTest","WHERE":"Score > 200"}}
+        # https://newsimland.com/~todd/JSON/?tok={"tok":"6C420424-62AD-4218-8B1F-D6CF2115FACD","cmd":{"SELECT":"tblTest","WHERE":"Score > 200"}}
         command = self.jsnDropSelect
         command["SELECT"] = table_name
         command["WHERE"] = where
         return self.jsnDropApi(command)
 
     def delete(self,table_name, where):
-        # https://newsimland.com/~todd/JSON/?tok={"tok":"YOUR-TOKEN-GOES-HERE","cmd":{"DELETE":"tblTest","WHERE":"Score > 200"}}
+        # https://newsimland.com/~todd/JSON/?tok={"tok":"6C420424-62AD-4218-8B1F-D6CF2115FACD","cmd":{"DELETE":"tblTest","WHERE":"Score > 200"}}
         command = self.jsnDropDelete
         command["DELETE"] = table_name
         command["WHERE"] = where
