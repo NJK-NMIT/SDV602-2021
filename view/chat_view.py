@@ -34,18 +34,19 @@ class ChatView(object):
             self.chat_count += 1
             result = self.JsnDrop.select("tblChat",f"DESNumber = '{UserManager.current_screen}'")
             print(result)
-            messages = ""
-            for record in result:
-                messages +=   f"{record['PersonID']}[{record['Chat']}]\n"
-            UserManager.chat_list += [messages]
-            if len(UserManager.chat_list) > 5:
-                UserManager.chat_list = UserManager.chat_list[:-5]
-            
-            Update_Messages = ""
-            for messages in UserManager.chat_list:
-                Update_Messages+= messages
+            if result != "Data error. Nothing selected from tblChat":
+                messages = ""
+                for record in result:
+                    messages +=   f"{record['PersonID']}[{record['Chat']}]\n"
+                UserManager.chat_list += [messages]
+                if len(UserManager.chat_list) > 5:
+                    UserManager.chat_list = UserManager.chat_list[:-5]
                 
-            self.window['ChatDisplay'].Update(Update_Messages)
+                Update_Messages = ""
+                for messages in UserManager.chat_list:
+                    Update_Messages+= messages
+                    
+                self.window['ChatDisplay'].Update(Update_Messages)
             self.set_up_chat_thread()
             
             
