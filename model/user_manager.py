@@ -1,5 +1,6 @@
 from model.network.jsn_drop_service import jsnDrop
 from time import gmtime  #  gmt_time returns UTC time struct  
+from datetime import datetime
 
 class UserManager(object):
     current_user = None
@@ -8,18 +9,22 @@ class UserManager(object):
     current_screen = None
     chat_list = []
     chat_thread = None
+    stop_thread = False
     this_user_manager = None
+    thread_lock = False
+    jsn_tok = "YOUR TOKEN GOES HERE"
 
     def now_time_stamp(self):
-        time_now = gmtime()
-        timestamp_str = f"{time_now.tm_year}-{time_now.tm_mon}-{time_now.tm_mday} {time_now.tm_hour}:{time_now.tm_min}:{time_now.tm_sec}"
-        return timestamp_str
+        time_now = datetime.now()
+        #timestamp_str = f"{time_now.tm_year}-{time_now.tm_mon}-{time_now.tm_mday} {time_now.tm_hour}:{time_now.tm_min}:{time_now.tm_sec}"
+        time_now.timestamp()
+        return time_now.timestamp()
  
 
     def __init__(self) -> None:
         super().__init__()
 
-        self.jsnDrop = jsnDrop("6c420424-62ad-4218-8b1f-d6cf2115facd","https://newsimland.com/~todd/JSON")
+        self.jsnDrop = jsnDrop(UserManager.jsn_tok,"https://newsimland.com/~todd/JSON")
 
         # SCHEMA Make sure the tables are  CREATED - jsnDrop does not wipe an existing table if it is recreated
         result = self.jsnDrop.create("tblUser",{"PersonID PK":"A_LOOONG_NAME"+('X'*50),
@@ -29,7 +34,7 @@ class UserManager(object):
         result = self.jsnDrop.create("tblChat",{"PersonID PK":"A_LOOONG_NAME"+('X'*50),
                                                 "DESNumber":"A_LOOONG_DES_ID"+('X'*50),
                                                 "Chat":"A_LOONG____CHAT_ENTRY"+('X'*255),
-                                                "Time": self.now_time_stamp()+('X'*50)})
+                                                "Time": self.now_time_stamp()})
         UserManager.this_user_manager = self
 
         # self.test_api()
@@ -146,7 +151,7 @@ def testUserManager():
     # Just a Test
 
     # Start with no user table and no chat table
-    a_jsnDrop = jsnDrop("6c420424-62ad-4218-8b1f-d6cf2115facd","https://newsimland.com/~todd/JSON")
+    a_jsnDrop = jsnDrop(UserManager.jsn_tok,"https://newsimland.com/~todd/JSON")
     a_jsnDrop.drop('tblUser')
     a_jsnDrop.drop('tblChat')
     # Now start a User manager with a clean slate

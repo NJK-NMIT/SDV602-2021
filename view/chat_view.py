@@ -3,6 +3,10 @@ import controller.DES.exit_button as exit_button
 import controller.User.chat_button as chat_button
 from model.user_manager import UserManager 
 from time import sleep
+from threading import Thread
+import threading
+import signal
+from datetime import datetime
 
 from view import update_file_view
 
@@ -19,24 +23,30 @@ class ChatView(object):
         self.JsnDrop = UserManager.this_user_manager.jsnDrop
         # Thread for chat
         self.chat_count = 0
-        
+        self.exit_event = threading.Event()
+        signal.signal(signal.SIGINT, self.signal_handler)
+
+    def signal_handler(self,signum, frame):
+        self.exit_event.set()   
 
     def set_up_chat_thread(self):
-        from threading import Thread
-        UserManager.chat_thread = Thread(target=self.chat_display_update)
+        UserManager.chat_thread = Thread(target=self.chat_display_update,args=(UserManager,))
         UserManager.chat_thread.setDaemon(True)
+        UserManager.stop_thread = False
         UserManager.chat_thread.start()
 
-    def chat_display_update(self):
+    def chat_display_update(self, UserManager):
         print("Thread chat")
-        sleep(3)
+        #sleep(2)
         if self.window != None:
             self.chat_count += 1
             result = self.JsnDrop.select("tblChat",f"DESNumber = '{UserManager.current_screen}'")
             print(result)
             if result != "Data error. Nothing selected from tblChat":
                 messages = ""
-                for record in result:
+                
+                sorted_chats = sorted(result,key = lambda i : i['Time'] )
+                for record in sorted_chats:
                     messages +=   f"{record['PersonID']}[{record['Chat']}]\n"
                 UserManager.chat_list += [messages]
                 if len(UserManager.chat_list) > 5:
@@ -45,13 +55,11 @@ class ChatView(object):
                 Update_Messages = ""
                 for messages in UserManager.chat_list:
                     Update_Messages+= messages
-                    
-                self.window['ChatDisplay'].Update(Update_Messages)
-            self.set_up_chat_thread()
-            
-            
-           
-
+                
+                if not UserManager.stop_thread:
+                    self.window.write_event_value('-CHATTHREAD-', Update_Messages)  
+                        
+                     
     def set_up_layout(self,**kwargs):
 
         sg.theme('LightGreen')
@@ -82,8 +90,6 @@ class ChatView(object):
                       ]
 
     def render(self):
-
-        # create the form and show it without the plot
         if self.layout != [] :
             self.window =sg.Window('Chat', self.layout, grab_anywhere=False, finalize=True)
             # Need a window before chat
@@ -96,7 +102,18 @@ class ChatView(object):
             
             while keep_going == True:
                 event, values = self.window.read()
-                
+                if event == "Exit" :
+                    UserManager.stop_thread = True
+                    
+                    
+                elif event == "-CHATTHREAD-" and not UserManager.stop_thread:
+                    UserManager.stop_thread = True
+                    self.window['ChatDisplay'].Update(values[event])
+                    if UserManager.stop_thread:
+                        UserManager.stop_thread = False
+                        self.set_up_chat_thread()
+
+
                 for accept_control in self.controls:
                     keep_going = accept_control(event,values,{'view':self})
             self.window.close()
