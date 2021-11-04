@@ -38,27 +38,53 @@ class ChatView(object):
     def chat_display_update(self, UserManager):
         print("Thread chat")
         #sleep(2)
+
+        # Check there is a window before sending an event to it
         if self.window != None:
             self.chat_count += 1
+            # Go to network service to get the Chats
             result = self.JsnDrop.select("tblChat",f"DESNumber = '{UserManager.current_screen}'")
             print(result)
             if result != "Data error. Nothing selected from tblChat":
                 messages = ""
-                
+                # Sort the result records by the Time field
                 sorted_chats = sorted(result,key = lambda i : i['Time'] )
+
                 for record in sorted_chats:
-                    messages +=   f"{record['PersonID']}[{record['Chat']}]\n"
-                UserManager.chat_list += [messages]
+                    new_display = ""
+                    if not (UserManager.latest_time is None):
+                        # Only add if the record's time is after the latest_time
+                        if record['Time'] > UserManager.latest_time:
+                            new_display = f"{record['PersonID']}[{record['Chat']}]\n"
+                    else: # Not entirely happy with this one - just what to do until there is a time?
+                        new_display = f"{record['PersonID']}[{record['Chat']}]\n"
+                    messages +=   new_display
+
+                UserManager.chat_list = [messages]
+
+                # Keep number of messages down to 5
                 if len(UserManager.chat_list) > 5:
                     UserManager.chat_list = UserManager.chat_list[:-5]
                 
+                # Makes a string of messages to update the display
                 Update_Messages = ""
                 for messages in UserManager.chat_list:
                     Update_Messages+= messages
                 
+                # Send the Event back to the window if we have n't already stopped
                 if not UserManager.stop_thread:
-                    self.window.write_event_value('-CHATTHREAD-', Update_Messages)  
-                        
+
+                    # Time stamp the latest record
+                    latest_record = sorted_chats[:-1][0]
+                    UserManager.latest_time = latest_record['Time']
+
+                    # Send the event back to the window
+                    self.window.write_event_value('-CHATTHREAD-', Update_Messages)
+        # The Thread stops - no loop - when the event is caught by the Window it starts a new long task
+
+         
+
+                                       
                      
     def set_up_layout(self,**kwargs):
 
@@ -105,12 +131,19 @@ class ChatView(object):
                 if event == "Exit" :
                     UserManager.stop_thread = True
                     
-                    
+                   
                 elif event == "-CHATTHREAD-" and not UserManager.stop_thread:
+                    # This is where the event come back to the window from the Thread
+                    
+                    # Lock until the Window is updated
                     UserManager.stop_thread = True
+
                     self.window['ChatDisplay'].Update(values[event])
+                    # This should always be True here
                     if UserManager.stop_thread:
+                        # Unlock so we can start another long task thread
                         UserManager.stop_thread = False
+                        # Start another long task thread
                         self.set_up_chat_thread()
 
 
