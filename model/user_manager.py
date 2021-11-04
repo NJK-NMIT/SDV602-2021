@@ -12,7 +12,7 @@ class UserManager(object):
     stop_thread = False
     this_user_manager = None
     thread_lock = False
-    jsn_tok = "6c420424-62ad-4218-8b1f-d6cf2115facd"
+    jsn_tok = "YOUR TOKEN GOES HERE"
     latest_time = None
 
     def now_time_stamp(self):
